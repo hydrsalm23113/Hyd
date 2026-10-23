@@ -28,7 +28,8 @@ function draw(){
  <h3>الإضافات</h3>${D.addons.map((a,i)=>`<div class="bx">${f('الاسم',`addons.${i}.name`)}${f('السعر',`addons.${i}.price`,'number')}${f('الوصف',`addons.${i}.desc`)}<button class="d" data-a="deladd" data-i="${i}">حذف الإضافة</button></div>`).join('')}<button class="btn" data-a="addadd">+ إضافة</button>
  <h3>القوالب (${D.items.length})</h3>${D.items.map((t,i)=>`<div class="bx">${f('اسم القالب',`items.${i}.title`)}${f('المعرّف في الرابط (إنجليزي بلا مسافات)',`items.${i}.id`)}
  <label>القسم<select data-p="items.${i}.cat">${D.cats.map(c=>`<option ${c===t.cat?'selected':''}>${esc(c)}</option>`).join('')}</select></label>${f('الوصف',`items.${i}.desc`)}
- <label>المزايا (كل ميزة في سطر)<textarea rows="3" data-feat="${i}">${esc((t.features||[]).join('\n'))}</textarea></label>${f('سعر خاص (اتركه فارغًا للسعر العام)',`items.${i}.price`,'number')}
+ <label>المزايا (كل ميزة في سطر)<textarea rows="3" data-feat="${i}">${esc((t.features||[]).join('\n'))}</textarea></label><h3 style="font-size:.95rem">بيانات الدعوة</h3>${f('الأسماء',`items.${i}.invite.names`)}${f('الموعد',`items.${i}.invite.date`,'datetime-local')}${f('المكان',`items.${i}.invite.venue`)}${f('رابط الخرائط',`items.${i}.invite.map`)}${f('رابط تأكيد الحضور (واتساب)',`items.${i}.invite.rsvp`)}<label>رسالة الدعوة<textarea rows="2" data-p="items.${i}.invite.note">${esc(get(`items.${i}.invite.note`))}</textarea></label><label>مخطّط الليلة (كل سطر: الوقت | النشاط)<textarea rows="4" data-p="items.${i}.invite.program">${esc(get(`items.${i}.invite.program`))}</textarea></label>
+ ${f('سعر خاص (اتركه فارغًا للسعر العام)',`items.${i}.price`,'number')}
  <div class="two"><label>لون ١<input type="color" data-p="items.${i}.c1" value="${esc(t.c1)}"></label><label>لون ٢<input type="color" data-p="items.${i}.c2" value="${esc(t.c2)}"></label></div>
  <label>صورة القالب${t.img?' ✓':''}<input type="file" accept="image/*" data-up="${i}"></label>${t.img?`<button class="d" data-a="delimg" data-i="${i}">إزالة الصورة</button> `:''}<button class="d" data-a="delitem" data-i="${i}">حذف القالب</button></div>`).join('')}
  <button class="btn" data-a="additem">+ قالب جديد</button><div class="sv"><button class="btn p" data-a="pub">حفظ ونشر مباشرة</button><button class="btn" data-a="dl" style="width:100%;margin-top:8px">تنزيل نسخة احتياطية</button></div></div>`;
@@ -39,10 +40,10 @@ $d.addEventListener('click',e=>{
  const a=el.dataset.a,i=+el.dataset.i;
  if(a==='pub')return pub();
  if(a==='dl'){const b=new Blob([JSON.stringify(D,null,1)],{type:'application/json'}),l=$d.createElement('a');l.href=URL.createObjectURL(b);l.download='data.json';l.click();return}
- if(a==='reset'){try{localStorage.removeItem('draft')}catch{}return load().then(()=>{drafted=false;draw()})}
+ if(a==='reset'){try{localStorage.removeItem('draft')}catch{}return load().then(()=>{drafted=false;D.items.forEach(t=>t.invite=t.invite||{});draw()})}
  if(a==='addadd')D.addons.push({id:'a'+Date.now().toString(36),name:'إضافة جديدة',price:1000,desc:''});
  else if(a==='deladd')D.addons.splice(i,1);
- else if(a==='additem')D.items.unshift({id:'t'+Date.now().toString(36),title:'قالب جديد',cat:D.cats[0]||'',desc:'',features:[],img:'',price:'',c1:'#c9a24b',c2:'#f6ead0'});
+ else if(a==='additem')D.items.unshift({id:'t'+Date.now().toString(36),title:'قالب جديد',cat:D.cats[0]||'',desc:'',features:[],invite:{},img:'',price:'',c1:'#c9a24b',c2:'#f6ead0'});
  else if(a==='delitem'){if(!confirm('حذف هذا القالب؟'))return;D.items.splice(i,1)}
  else if(a==='delimg')D.items[i].img='';
  keep();draw();
@@ -53,5 +54,5 @@ $d.addEventListener('input',e=>{const t=e.target;
  else if(t.hasAttribute('data-cats'))D.cats=t.value.split(/[,،]/).map(s=>s.trim()).filter(Boolean);
  keep()});
 $d.addEventListener('change',async e=>{const t=e.target;if(t.dataset.up===undefined||!t.files[0])return;D.items[+t.dataset.up].img=await shrink(t.files[0]);keep();draw()});
-load().then(()=>{try{const d=localStorage.getItem('draft');if(d){D=JSON.parse(d);drafted=true}}catch{}draw()}).catch(()=>{$('#root').textContent='تعذّر تحميل data.json'});
+load().then(()=>{try{const d=localStorage.getItem('draft');if(d){D=JSON.parse(d);drafted=true}}catch{}D.items.forEach(t=>t.invite=t.invite||{});draw()}).catch(()=>{$('#root').textContent='تعذّر تحميل data.json'});
 </script></body></html>

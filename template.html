@@ -15,6 +15,7 @@ function draw(){
  $('#root').innerHTML=`<div class="w">${head()}<a class="back" href="/">← كل القوالب</a>
  <div class="det">${art(T)}<div><h1>${esc(T.title)}</h1><div class="big">${fmt(T.price||D.price)}</div><p style="color:var(--mut)">${esc(T.desc)}</p>
  <ul class="ft">${(T.features||[]).map(f=>`<li>${esc(f)}</li>`).join('')}</ul>
+ <a class="btn p" href="/invite/${encodeURIComponent(T.id)}" style="margin-bottom:14px">معاينة الدعوة</a>
  <section class="price">${D.addons.map(a=>`<label class="add"><input type="checkbox" data-id="${a.id}" ${sel.has(a.id)?'checked':''}><div style="flex:1"><b>${esc(a.name)}</b> <span style="color:var(--gold)">+${fmt(a.price)}</span><small>${esc(a.desc)}</small></div></label>`).join('')}
  <div class="row" style="border-top:1px solid var(--line);padding-top:12px"><div>المجموع <span class="big">${fmt(total())}</span></div><a class="btn p" id="ord" href="${esc(D.orderUrl)}" target="_blank" rel="noopener">اطلبي هذا القالب</a></div></section></div></div>
  ${sim.length?`<h3 class="s">قوالب مشابهة</h3><div class="grid">${sim.map(card).join('')}</div>`:''}${foot()}</div>`;
