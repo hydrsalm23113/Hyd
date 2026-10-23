@@ -9,10 +9,19 @@ const set=(p,v)=>{const k=p.split('.'),l=k.pop();k.reduce((o,x)=>o[x],D)[l]=v};
 const f=(l,p,t='text')=>`<label>${l}<input type="${t}" data-p="${p}" value="${esc(get(p))}"></label>`;
 const keep=()=>{try{localStorage.setItem('draft',JSON.stringify(D))}catch{}};
 function shrink(file){return new Promise(r=>{const im=new Image();im.onload=()=>{const k=Math.min(1,900/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);r(c.toDataURL('image/jpeg',.8))};im.src=URL.createObjectURL(file)})}
+async function pub(){
+ let p=sessionStorage.getItem('pw')||prompt('كلمة مرور التحكم');if(!p)return;
+ toast('جارٍ النشر…');
+ try{const r=await fetch('/api/data',{method:'POST',headers:{'content-type':'application/json','x-admin-password':p},body:JSON.stringify(D)});
+ const j=await r.json().catch(()=>({}));
+ if(r.ok){sessionStorage.setItem('pw',p);try{localStorage.removeItem('draft')}catch{}drafted=false;toast('تم النشر ✓');draw()}
+ else{sessionStorage.removeItem('pw');toast(j.error||('تعذّر الحفظ ('+r.status+')'))}}
+ catch{toast('تعذّر الاتصال')}
+}
 function draw(){
  const y=scrollY;
  $('#root').innerHTML=`<div class="w pn"><a class="brand" href="/">← عودة للموقع</a><h2>لوحة التحكم</h2>
- <p style="color:var(--mut)">عدّل ما تريد ثم اضغط «تنزيل data.json» واستبدل به الملف في مشروعك وأعد النشر. تُحفظ تعديلاتك تلقائيًا في هذا المتصفح حتى تنشرها.${drafted?' <a href="#" data-a="reset" style="color:var(--gold)">تجاهل المسودة</a>':''}</p>
+ <p style="color:var(--mut)">عدّل ما تريد ثم اضغط «حفظ ونشر مباشرة» وتظهر التغييرات للجميع فورًا. تُحفظ تعديلاتك تلقائيًا في هذا المتصفح حتى تنشرها.${drafted?' <a href="#" data-a="reset" style="color:var(--gold)">تجاهل المسودة</a>':''}</p>
  <h3>الموقع</h3>${f('اسم العلامة','brand')}${f('العنوان الرئيسي','headline')}<label>الوصف<textarea rows="3" data-p="desc">${esc(D.desc)}</textarea></label>
  ${f('رابط الطلب (واتساب أو إنستغرام)','orderUrl')}${f('رابط حسابك','igUrl')}<div class="two">${f('العملة','currency')}${f('سعر الدعوة','price','number')}</div>${f('نص التذييل','footer')}
  <label>الأقسام (افصل بينها بفاصلة)<input data-cats value="${esc(D.cats.join('، '))}"></label>
@@ -22,12 +31,13 @@ function draw(){
  <label>المزايا (كل ميزة في سطر)<textarea rows="3" data-feat="${i}">${esc((t.features||[]).join('\n'))}</textarea></label>${f('سعر خاص (اتركه فارغًا للسعر العام)',`items.${i}.price`,'number')}
  <div class="two"><label>لون ١<input type="color" data-p="items.${i}.c1" value="${esc(t.c1)}"></label><label>لون ٢<input type="color" data-p="items.${i}.c2" value="${esc(t.c2)}"></label></div>
  <label>صورة القالب${t.img?' ✓':''}<input type="file" accept="image/*" data-up="${i}"></label>${t.img?`<button class="d" data-a="delimg" data-i="${i}">إزالة الصورة</button> `:''}<button class="d" data-a="delitem" data-i="${i}">حذف القالب</button></div>`).join('')}
- <button class="btn" data-a="additem">+ قالب جديد</button><div class="sv"><button class="btn p" data-a="dl">تنزيل data.json</button></div></div>`;
+ <button class="btn" data-a="additem">+ قالب جديد</button><div class="sv"><button class="btn p" data-a="pub">حفظ ونشر مباشرة</button><button class="btn" data-a="dl" style="width:100%;margin-top:8px">تنزيل نسخة احتياطية</button></div></div>`;
  scrollTo(0,y);
 }
 $d.addEventListener('click',e=>{
  const el=e.target.closest('[data-a]');if(!el)return;e.preventDefault();
  const a=el.dataset.a,i=+el.dataset.i;
+ if(a==='pub')return pub();
  if(a==='dl'){const b=new Blob([JSON.stringify(D,null,1)],{type:'application/json'}),l=$d.createElement('a');l.href=URL.createObjectURL(b);l.download='data.json';l.click();return}
  if(a==='reset'){try{localStorage.removeItem('draft')}catch{}return load().then(()=>{drafted=false;draw()})}
  if(a==='addadd')D.addons.push({id:'a'+Date.now().toString(36),name:'إضافة جديدة',price:1000,desc:''});

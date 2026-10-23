@@ -1,4 +1,5 @@
-1) ارفع محتوى هذا المجلد إلى مستودع GitHub جديد.
-2) في vercel.com اختر Add New > Project ثم استورد المستودع واضغط Deploy (بلا أي إعدادات).
-3) الصفحات: / للرئيسية، /templates/المعرّف لكل قالب، /admin للتحكم.
-4) للتعديل: افتح /admin، عدّل، نزّل data.json، استبدل به الملف في المستودع، فيُنشر تلقائيًا.
+بعد رفع الملفات إلى GitHub:
+1) في Vercel: مشروعك > Storage > Create > Blob (اختر Public) > اربطه بالمشروع.
+2) Settings > Environment Variables: أضف ADMIN_PASSWORD وقيمتها كلمة مرورك.
+3) Deployments > Redeploy.
+4) افتح /admin وعدّل ثم اضغط حفظ ونشر مباشرة.
