@@ -1,0 +1,1 @@
+{"rewrites":[{"source":"/templates/:id","destination":"/template.html"},{"source":"/admin","destination":"/admin.html"}]}

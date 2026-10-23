@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>القالب</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"></head>
+<body><div id="root"></div><script src="/app.js"></script><script>
+const id=decodeURIComponent(location.pathname.split('/').filter(Boolean).pop()||'');
+const sel=new Set();let T;
+const total=()=>+(T.price||D.price)+D.addons.filter(a=>sel.has(a.id)).reduce((s,a)=>s+ +a.price,0);
+const msg=()=>`مرحبًا، أريد طلب دعوة بقالب «${T.title}» (${location.href}). الإضافات: ${D.addons.filter(a=>sel.has(a.id)).map(a=>a.name).join('، ')||'بدون'}. المجموع: ${fmt(total())}`;
+function draw(){
+ T=D.items.find(i=>i.id===id);
+ if(!T){$('#root').innerHTML=`<div class="w">${head()}<div class="empty">هذا القالب غير موجود. <a class="back" href="/">العودة للقوالب</a></div></div>`;return}
+ document.title=T.title+' — '+D.brand;
+ const sim=D.items.filter(i=>i.cat===T.cat&&i.id!==T.id).slice(0,3);
+ $('#root').innerHTML=`<div class="w">${head()}<a class="back" href="/">← كل القوالب</a>
+ <div class="det">${art(T)}<div><h1>${esc(T.title)}</h1><div class="big">${fmt(T.price||D.price)}</div><p style="color:var(--mut)">${esc(T.desc)}</p>
+ <ul class="ft">${(T.features||[]).map(f=>`<li>${esc(f)}</li>`).join('')}</ul>
+ <section class="price">${D.addons.map(a=>`<label class="add"><input type="checkbox" data-id="${a.id}" ${sel.has(a.id)?'checked':''}><div style="flex:1"><b>${esc(a.name)}</b> <span style="color:var(--gold)">+${fmt(a.price)}</span><small>${esc(a.desc)}</small></div></label>`).join('')}
+ <div class="row" style="border-top:1px solid var(--line);padding-top:12px"><div>المجموع <span class="big">${fmt(total())}</span></div><a class="btn p" id="ord" href="${esc(D.orderUrl)}" target="_blank" rel="noopener">اطلبي هذا القالب</a></div></section></div></div>
+ ${sim.length?`<h3 class="s">قوالب مشابهة</h3><div class="grid">${sim.map(card).join('')}</div>`:''}${foot()}</div>`;
+}
+$d.addEventListener('change',e=>{const i=e.target.dataset.id;if(i){sel.has(i)?sel.delete(i):sel.add(i);draw()}});
+$d.addEventListener('click',async e=>{if(e.target.closest('#ord')){try{await navigator.clipboard.writeText(msg());toast('نُسخ نص الطلب — الصقه في المحادثة')}catch{}}});
+load().then(draw).catch(()=>{$('#root').textContent='تعذّر تحميل data.json'});
+</script></body></html>

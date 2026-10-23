@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>قوالب الدعوات</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="/style.css"></head>
+<body><div id="root"></div><script src="/app.js"></script><script>
+let cat='الكل';
+function draw(){
+ const L=D.items.filter(i=>cat==='الكل'||i.cat===cat);
+ $('#root').innerHTML=`<div class="w">${head()}<section class="hero"><h1>${esc(D.headline)}</h1><p>${esc(D.desc)}</p>
+ <div class="btns"><a class="btn p" href="${esc(D.orderUrl)}" target="_blank" rel="noopener">اطلب دعوتك الآن</a><a class="btn" href="${esc(D.igUrl)}" target="_blank" rel="noopener">حسابنا على إنستغرام</a></div></section></div>
+ <nav class="chips"><button class="chip ${cat==='الكل'?'on':''}" data-v="الكل">الكل<small>${D.items.length}</small></button>${D.cats.map(c=>`<button class="chip ${cat===c?'on':''}" data-v="${esc(c)}">${esc(c)}<small>${D.items.filter(i=>i.cat===c).length}</small></button>`).join('')}</nav>
+ <div class="w"><section class="price"><div class="row"><h2>سعر الدعوة</h2><div class="big">${fmt(D.price)}</div></div>${D.addons.map(a=>`<div class="add"><div><b>${esc(a.name)}</b> <span style="color:var(--gold)">+${fmt(a.price)}</span><small>${esc(a.desc)}</small></div></div>`).join('')}</section>
+ <main class="grid">${L.map(card).join('')||'<div class="empty">لا توجد قوالب في هذا القسم.</div>'}</main>${foot()}</div>`;
+}
+$d.addEventListener('click',e=>{const c=e.target.closest('[data-v]');if(c){cat=c.dataset.v;draw()}});
+load().then(()=>{document.title=D.brand+' — قوالب الدعوات';draw()}).catch(()=>{$('#root').textContent='تعذّر تحميل data.json'});
+</script></body></html>
